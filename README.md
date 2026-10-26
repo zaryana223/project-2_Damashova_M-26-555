@@ -55,4 +55,4 @@
 
 ## Запись работы
 
-[![asciicast](https://asciinema.org/a/iGa0btukdKXGvqWE.svg)](https://asciinema.org/a/iGa0btukdKXGvqWE)
+[![asciicast](https://asciinema.org/a/iGa0btukdKXGvqWE.png)](https://asciinema.org/a/iGa0btukdKXGvqWE)
