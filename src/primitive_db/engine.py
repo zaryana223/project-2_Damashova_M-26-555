@@ -94,6 +94,8 @@ def run():
             columns = args[2:]
             existed = table_name in metadata
             metadata = create_table(metadata, table_name, columns)
+            if metadata is None:
+                continue
             if not existed and table_name in metadata:
                 save_metadata("db_meta.json", metadata)
         elif command == "drop_table":
@@ -103,6 +105,8 @@ def run():
             table_name = args[1]
             existed = table_name in metadata
             metadata = drop_table(metadata, table_name)
+            if metadata is None:
+                continue
             if existed and table_name not in metadata:
                 save_metadata("db_meta.json", metadata)
         elif command == "info":
@@ -130,6 +134,8 @@ def run():
             table_data = load_table_data(table_name)
             old_count = len(table_data)
             table_data = insert(metadata, table_name, values, table_data)
+            if table_data is None:
+                continue
             if len(table_data) > old_count:
                 save_table_data(table_name, table_data)
         elif command == "select":
@@ -149,6 +155,8 @@ def run():
                 where_clause = parse_where(where_text)
             table_data = load_table_data(table_name)
             rows = select(table_data, where_clause)
+            if rows is None:
+                continue
             show_table(metadata, table_name, rows)
         elif command == "update":
             if len(args) < 6 or "set" not in args or "where" not in args:
@@ -167,6 +175,8 @@ def run():
             where_clause = parse_where(where_text)
             table_data = load_table_data(table_name)
             table_data = update(table_data, set_clause, where_clause, table_name)
+            if table_data is None:
+                continue
             save_table_data(table_name, table_data)
         elif command == "delete":
             if len(args) < 4 or args[1] != "from" or "where" not in args:
@@ -183,6 +193,8 @@ def run():
             where_clause = parse_where(where_text)
             table_data = load_table_data(table_name)
             table_data = delete(table_data, where_clause, table_name)
+            if table_data is None:
+                continue
             save_table_data(table_name, table_data)
         else:
             print(f"Функции {command} нет. Попробуйте снова.")

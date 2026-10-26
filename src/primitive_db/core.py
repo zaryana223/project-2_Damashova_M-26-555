@@ -1,3 +1,13 @@
+from primitive_db.decorators import (
+    confirm_action,
+    create_cacher,
+    handle_db_errors,
+    log_time,
+)
+
+cache_result = create_cacher()
+
+@handle_db_errors
 def create_table(metadata, table_name, columns):
     if table_name in metadata:
         print(f'Ошибка: Таблица "{table_name}" уже существует.')
@@ -24,6 +34,8 @@ def create_table(metadata, table_name, columns):
     return metadata
 
 
+@handle_db_errors
+@confirm_action("удаление таблицы")
 def drop_table(metadata, table_name):
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
@@ -34,6 +46,8 @@ def drop_table(metadata, table_name):
     return metadata
 
 
+@handle_db_errors
+@log_time
 def insert(metadata, table_name, values, table_data):
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
@@ -74,21 +88,28 @@ def insert(metadata, table_name, values, table_data):
     return table_data
 
 
+@handle_db_errors
+@log_time
 def select(table_data, where_clause=None):
-    if where_clause is None:
-        return table_data
+    def get_rows():
+        if where_clause is None:
+            return table_data
 
-    result = []
-    for row in table_data:
-        match = True
-        for key in where_clause:
-            if key not in row or row[key] != where_clause[key]:
-                match = False
-        if match:
-            result.append(row)
-    return result
+        result = []
+        for row in table_data:
+            match = True
+            for column in where_clause:
+                if column not in row or row[column] != where_clause[column]:
+                    match = False
+            if match:
+                result.append(row)
+        return result
+
+    query_key = str(table_data) + str(where_clause)
+    return cache_result(query_key, get_rows)
 
 
+@handle_db_errors
 def update(table_data, set_clause, where_clause, table_name):
     for row in table_data:
         match = True
@@ -104,6 +125,8 @@ def update(table_data, set_clause, where_clause, table_name):
     return table_data
 
 
+@handle_db_errors
+@confirm_action("удаление записи")
 def delete(table_data, where_clause, table_name):
     new_data = []
     for row in table_data:
