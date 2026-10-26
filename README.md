@@ -52,3 +52,7 @@
     Ошибка: Таблица "products" не существует.
     Введите команду: exit
     (primitive-db) PS C:\Users\Z10damashova\Documents\project-2_Damashova_M-26-555>
+
+## Запись работы
+
+[![asciicast](https://asciinema.org/a/iGa0btukdKXGvqWE.svg)](https://asciinema.org/a/iGa0btukdKXGvqWE)
