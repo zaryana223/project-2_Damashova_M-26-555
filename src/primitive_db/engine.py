@@ -3,9 +3,11 @@ import shlex
 import prompt
 from prettytable import PrettyTable
 
+from primitive_db.constants import META_FILE
 from primitive_db.core import create_table, delete, drop_table, insert, select, update
 from primitive_db.parser import parse_set, parse_values, parse_where
 from primitive_db.utils import (
+    delete_table_data,
     load_metadata,
     load_table_data,
     save_metadata,
@@ -14,6 +16,7 @@ from primitive_db.utils import (
 
 
 def welcome():
+    """Показывает первые команды help и exit."""
     print("Первая попытка запустить проект!")
     print()
     print("***")
@@ -54,6 +57,7 @@ def print_help():
 
 
 def show_table(metadata, table_name, rows):
+    """Печатает записи таблицы в виде рамки."""
     columns = []
     for column in metadata[table_name]:
         name = column.split(":")[0]
@@ -70,9 +74,10 @@ def show_table(metadata, table_name, rows):
 
 
 def run():
+    """Читает команды и вызывает нужные функции."""
     print_help()
     while True:
-        metadata = load_metadata("db_meta.json")
+        metadata = load_metadata(META_FILE)
         user_input = input("Введите команду: ")
         args = shlex.split(user_input)
         if len(args) == 0:
@@ -97,7 +102,7 @@ def run():
             if metadata is None:
                 continue
             if not existed and table_name in metadata:
-                save_metadata("db_meta.json", metadata)
+                save_metadata(META_FILE, metadata)
         elif command == "drop_table":
             if len(args) != 2:
                 print(f"Некорректное значение: {user_input}. Попробуйте снова.")
@@ -108,7 +113,8 @@ def run():
             if metadata is None:
                 continue
             if existed and table_name not in metadata:
-                save_metadata("db_meta.json", metadata)
+                save_metadata(META_FILE, metadata)
+                delete_table_data(table_name)
         elif command == "info":
             if len(args) != 2:
                 print(f"Некорректное значение: {user_input}. Попробуйте снова.")

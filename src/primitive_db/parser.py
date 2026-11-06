@@ -2,6 +2,7 @@ import shlex
 
 
 def convert_value(text):
+    """Превращает текст в число, True, False или строку."""
     if text == "true":
         return True
     if text == "false":
@@ -12,6 +13,7 @@ def convert_value(text):
 
 
 def parse_where(text):
+    """Разбирает условие where в словарь."""
     parts = shlex.split(text)
     key = parts[0]
     value = convert_value(parts[2])
@@ -19,6 +21,7 @@ def parse_where(text):
 
 
 def parse_set(text):
+    """Разбирает условие set в словарь."""
     parts = shlex.split(text)
     key = parts[0]
     value = convert_value(parts[2])
@@ -26,6 +29,7 @@ def parse_set(text):
 
 
 def parse_values(text):
+    """Достает значения из скобок команды insert."""
     start = text.find("(")
     end = text.rfind(")")
     if start == -1 or end == -1 or end < start:

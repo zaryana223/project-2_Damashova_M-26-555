@@ -1,5 +1,19 @@
 # project-2_Damashova_M-26-555
 Работу выполнила Дамашова Заряна Алексеевна
+
+## Описание работы
+
+### Примитивная база данных с поддержкой таблиц, команд и хранения данных в JSON.
+
+В папке проекта выполняется:
+
+    uv sync
+    uv run database
+
+`uv sync` ставит пакет и зависимости. 
+
+`uv run database` запускает программу.
+
 ## Управление таблицами
 
 **`database`**
@@ -174,3 +188,7 @@
 ## Запись работы декораторов и замыканий
 
 [![asciicast](https://asciinema.org/a/GIBn1NbhEDG7e4Tv.png)](https://asciinema.org/a/GIBn1NbhEDG7e4Tv)
+
+## Полный цикл работы
+
+[![asciicast](https://asciinema.org/a/yoAq4kOZbee3WNDO.png)](https://asciinema.org/a/yoAq4kOZbee3WNDO)

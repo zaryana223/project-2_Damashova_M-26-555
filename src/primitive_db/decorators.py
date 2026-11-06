@@ -1,7 +1,10 @@
 import time
 
+from primitive_db.constants import CONFIRM_YES
+
 
 def handle_db_errors(func):
+    """Ловит ошибку функции и печатает сообщение."""
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -20,17 +23,19 @@ def handle_db_errors(func):
 
 
 def confirm_action(action_name):
+    """Спрашивает подтверждение перед опасным действием."""
     def decorator(func):
         def wrapper(*args, **kwargs):
             text = f'Вы уверены, что хотите выполнить "{action_name}"? [y/n]:'
             answer = input(text)
-            if answer == "y":
+            if answer == CONFIRM_YES:
                 return func(*args, **kwargs)
         return wrapper
     return decorator
 
 
 def log_time(func):
+    """Печатает, сколько секунд выполнялась функция."""
     def wrapper(*args, **kwargs):
         start = time.monotonic()
         result = func(*args, **kwargs)
@@ -42,6 +47,7 @@ def log_time(func):
 
 
 def create_cacher():
+    """Возвращает функцию, которая помнит результаты запросов."""
     cache = {}
 
     def cache_result(key, value_func):

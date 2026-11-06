@@ -1,3 +1,4 @@
+from primitive_db.constants import ID_COLUMN, ID_FIELD, VALID_TYPES
 from primitive_db.decorators import (
     confirm_action,
     create_cacher,
@@ -9,11 +10,12 @@ cache_result = create_cacher()
 
 @handle_db_errors
 def create_table(metadata, table_name, columns):
+    """Создает таблицу и сама добавляет столбец ID, если его нет."""
     if table_name in metadata:
         print(f'Ошибка: Таблица "{table_name}" уже существует.')
         return metadata
 
-    allowed = ["int", "str", "bool"]
+    allowed = VALID_TYPES
     new_columns = []
     has_id = False
     for column in columns:
@@ -21,12 +23,12 @@ def create_table(metadata, table_name, columns):
         if len(parts) != 2 or parts[1] not in allowed:
             print(f"Некорректное значение: {column}. Попробуйте снова.")
             return metadata
-        if parts[0] == "ID":
+        if parts[0] == ID_FIELD:
             has_id = True
         new_columns.append(column)
 
     if not has_id:
-        new_columns.insert(0, "ID:int")
+        new_columns.insert(0, ID_COLUMN)
 
     metadata[table_name] = new_columns
     columns_text = ", ".join(new_columns)
@@ -37,6 +39,7 @@ def create_table(metadata, table_name, columns):
 @handle_db_errors
 @confirm_action("удаление таблицы")
 def drop_table(metadata, table_name):
+    """Удаляет таблицу из метаданных."""
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
         return metadata
@@ -49,6 +52,7 @@ def drop_table(metadata, table_name):
 @handle_db_errors
 @log_time
 def insert(metadata, table_name, values, table_data):
+    """Добавляет запись и ставит новый ID."""
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
         return table_data
@@ -56,7 +60,7 @@ def insert(metadata, table_name, values, table_data):
     columns = []
     for column in metadata[table_name]:
         parts = column.split(":")
-        if parts[0] != "ID":
+        if parts[0] != ID_FIELD:
             columns.append(parts)
 
     if len(values) != len(columns):
@@ -65,10 +69,10 @@ def insert(metadata, table_name, values, table_data):
 
     new_id = 0
     for item in table_data:
-        if item["ID"] > new_id:
-            new_id = item["ID"]
+        if item[ID_FIELD] > new_id:
+            new_id = item[ID_FIELD]
 
-    row = {"ID": new_id + 1}
+    row = {ID_FIELD: new_id + 1}
     for i in range(len(columns)):
         name = columns[i][0]
         type_name = columns[i][1]
@@ -84,13 +88,14 @@ def insert(metadata, table_name, values, table_data):
             return table_data
 
     table_data.append(row)
-    print(f'Запись с ID={row["ID"]} успешно добавлена в таблицу "{table_name}".')
+    print(f'Запись с ID={row[ID_FIELD]} успешно добавлена в таблицу "{table_name}".')
     return table_data
 
 
 @handle_db_errors
 @log_time
 def select(table_data, where_clause=None):
+    """Возвращает записи. Повтор того же запроса берет из памяти."""
     def get_rows():
         if where_clause is None:
             return table_data
@@ -111,6 +116,7 @@ def select(table_data, where_clause=None):
 
 @handle_db_errors
 def update(table_data, set_clause, where_clause, table_name):
+    """Меняет поля в записях, которые подходят под условие."""
     for row in table_data:
         match = True
         for key in where_clause:
@@ -120,7 +126,8 @@ def update(table_data, set_clause, where_clause, table_name):
             for key in set_clause:
                 row[key] = set_clause[key]
             print(
-                f'Запись с ID={row["ID"]} в таблице "{table_name}" успешно обновлена.'
+                f'Запись с ID={row[ID_FIELD]} '
+                f'в таблице "{table_name}" успешно обновлена.'
                 )
     return table_data
 
@@ -128,6 +135,7 @@ def update(table_data, set_clause, where_clause, table_name):
 @handle_db_errors
 @confirm_action("удаление записи")
 def delete(table_data, where_clause, table_name):
+    """Удаляет записи, которые подходят под условие."""
     new_data = []
     for row in table_data:
         match = True
@@ -136,7 +144,8 @@ def delete(table_data, where_clause, table_name):
                 match = False
         if match:
             print(
-                f'Запись с ID={row["ID"]} успешно удалена из таблицы "{table_name}".'
+                f'Запись с ID={row[ID_FIELD]} '
+                f'успешно удалена из таблицы "{table_name}".'
                 )
         else:
             new_data.append(row)
